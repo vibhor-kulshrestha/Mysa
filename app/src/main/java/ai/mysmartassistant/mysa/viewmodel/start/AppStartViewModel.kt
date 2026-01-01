@@ -23,7 +23,7 @@ class AppStartViewModel @Inject constructor(
             val isLoggedIn = sessionRepository.hasValidSession()
             _startDestination.value =
                 if (isLoggedIn) Route.Home.route
-                else Route.Auth.route
+                else Route.Home.route
         }
     }
 }

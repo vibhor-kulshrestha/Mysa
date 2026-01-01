@@ -3,8 +3,11 @@ package ai.mysmartassistant.mysa.viewmodel.auth.otp
 import ai.mysmartassistant.mysa.core.network.ApiResult
 import ai.mysmartassistant.mysa.domain.auth.LoginIntent.*
 import ai.mysmartassistant.mysa.domain.auth.LoginMedium
+import ai.mysmartassistant.mysa.domain.auth.LoginNextStep
+import ai.mysmartassistant.mysa.ui.auth.LoginUiEvent
 import ai.mysmartassistant.mysa.domain.auth.SendOtpUseCase
 import ai.mysmartassistant.mysa.domain.auth.VerifyLoginUseCase
+import ai.mysmartassistant.mysa.ui.auth.otp.OtpUIEvents
 import ai.mysmartassistant.mysa.ui.auth.otp.OtpUiState
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -12,7 +15,9 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -22,6 +27,9 @@ class OtpViewModel @Inject constructor(
     private val verifyLoginUseCase: VerifyLoginUseCase,
     private val sendOtp: SendOtpUseCase
 ) : ViewModel() {
+
+    private val _events = MutableSharedFlow<OtpUIEvents>()
+    val events = _events.asSharedFlow()
 
     private val _uiState = MutableStateFlow(
         OtpUiState(phoneNumber = "", medium = LoginMedium.SMS)
@@ -67,7 +75,8 @@ class OtpViewModel @Inject constructor(
                         )
                     }
                 }
-                is ApiResult.Success<*> -> {
+                is ApiResult.Success -> {
+                    onLoginSuccess(result.data)
                     _uiState.update {
                         it.copy(
                             isSubmitting = false,
@@ -111,6 +120,14 @@ class OtpViewModel @Inject constructor(
                     )
                 }
                 delay(1_000)
+            }
+        }
+    }
+    fun onLoginSuccess(data: LoginNextStep) {
+        viewModelScope.launch {
+            when(data) {
+                LoginNextStep.Home -> _events.emit(OtpUIEvents.NavigateToHome)
+                LoginNextStep.Onboarding -> _events.emit(OtpUIEvents.NavigateToOnboarding)
             }
         }
     }

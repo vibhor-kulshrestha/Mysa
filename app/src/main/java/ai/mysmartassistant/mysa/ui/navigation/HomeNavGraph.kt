@@ -1,5 +1,6 @@
 package ai.mysmartassistant.mysa.ui.navigation
 
+import ai.mysmartassistant.mysa.ui.home.ChatScreen
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
@@ -16,7 +17,9 @@ fun NavGraphBuilder.homeNavGraph(
     ) {
 
         composable(route = Route.Chat.route) {
-//            ChatScreen()
+            ChatScreen(
+                windowSizeClass = windowSizeClass
+            )
         }
     }
 }

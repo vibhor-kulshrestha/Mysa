@@ -1,6 +1,7 @@
 package ai.mysmartassistant.mysa.ui.auth.otp
 
 import ai.mysmartassistant.mysa.domain.auth.LoginMedium
+import ai.mysmartassistant.mysa.ui.auth.LoginUiEvent
 import ai.mysmartassistant.mysa.platform.sms.SmsRetrieverListener
 import ai.mysmartassistant.mysa.platform.sms.SmsRetrieverStarter
 import ai.mysmartassistant.mysa.ui.common.SafeArea
@@ -30,6 +31,8 @@ fun OtpScreen(
     medium: LoginMedium,
     onEditNumber: () -> Unit,
     onBack: () -> Unit,
+    onLoginSuccess: () -> Unit,
+    onNavigateToOnboarding: () -> Unit,
     viewModel: OtpViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
@@ -38,6 +41,17 @@ fun OtpScreen(
     LaunchedEffect(Unit) {
         viewModel.init(phoneNumber,medium)
         SmsRetrieverStarter.start(context)
+        viewModel.events.collect { event ->
+            when (event) {
+                OtpUIEvents.NavigateToHome -> {
+                    onLoginSuccess()
+                }
+
+                OtpUIEvents.NavigateToOnboarding -> {
+                    onNavigateToOnboarding()
+                }
+            }
+        }
     }
 
     BackHandler { onBack() }

@@ -50,6 +50,16 @@ fun NavGraphBuilder.authNavGraph(
                 },
                 onBack = {
                     navController.popBackStack()
+                },
+                onLoginSuccess = {
+                    navController.navigate(Route.Home.route) {
+                        popUpTo(Route.Auth.route) { inclusive = true }
+                    }
+                },
+                onNavigateToOnboarding = {
+                    navController.navigate(Route.OnBoard.route) {
+                        popUpTo(Route.Auth.route) { inclusive = true }
+                    }
                 }
             )
         }

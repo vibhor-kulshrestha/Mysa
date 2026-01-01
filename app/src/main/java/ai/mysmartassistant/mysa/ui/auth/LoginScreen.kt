@@ -2,7 +2,7 @@ package ai.mysmartassistant.mysa.ui.auth
 
 import ai.mysmartassistant.mysa.data.auth.TruecallerOAuthManager
 import ai.mysmartassistant.mysa.domain.auth.LoginMedium
-import ai.mysmartassistant.mysa.domain.auth.LoginUiEvent
+import ai.mysmartassistant.mysa.ui.auth.LoginUiEvent
 import ai.mysmartassistant.mysa.ui.common.SafeArea
 import ai.mysmartassistant.mysa.viewmodel.auth.LoginViewModel
 import androidx.activity.compose.BackHandler
