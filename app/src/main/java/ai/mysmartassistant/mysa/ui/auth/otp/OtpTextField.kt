@@ -13,6 +13,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 @Composable
 fun OtpTextField(
@@ -28,15 +29,34 @@ fun OtpTextField(
         },
         modifier = Modifier
             .fillMaxWidth()
-            .height(56.dp)
+            .height(64.dp) // Slightly taller for larger text
             .semantics {
                 contentType = ContentType.SmsOtpCode
             },
-        placeholder = { Text("Enter OTP") },
+        placeholder = {
+            Text(
+                text = "0000",
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                style = androidx.compose.ui.text.TextStyle(
+                    fontSize = 24.sp,
+                    letterSpacing = 8.sp
+                )
+            )
+        }, // Optional: Placeholder like 0000 or - - - -
+        textStyle = androidx.compose.ui.text.TextStyle(
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+            fontSize = 24.sp,
+            fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
+            letterSpacing = 8.sp,
+            color = androidx.compose.material3.MaterialTheme.colorScheme.onSurface
+        ),
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.NumberPassword,
             imeAction = ImeAction.Done
         ),
-        singleLine = true
+        singleLine = true,
+        shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp) // More rounded
     )
 }

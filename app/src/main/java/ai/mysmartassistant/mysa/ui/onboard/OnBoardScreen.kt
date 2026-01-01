@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
@@ -116,7 +117,9 @@ private fun OnBoardCompact(
             HeaderText()
         }
 
-        Column {
+        Column(
+            modifier = Modifier.imePadding()
+        ) {
             NameFields(uiState, onAction)
             Spacer(Modifier.height(12.dp))
             GenderSelector(
@@ -164,6 +167,7 @@ private fun OnBoardMedium(
         Column(
             modifier = Modifier
                 .weight(1f)
+                .imePadding()
                 .padding(start = 32.dp)
                 .fillMaxHeight()
                 .verticalScroll(rememberScrollState()),
@@ -220,6 +224,7 @@ private fun OnBoardExpanded(
         Column(
             modifier = Modifier
                 .weight(1f)
+                .imePadding()
                 .widthIn(max = 420.dp)
                 .fillMaxHeight()
                 .verticalScroll(rememberScrollState()),
