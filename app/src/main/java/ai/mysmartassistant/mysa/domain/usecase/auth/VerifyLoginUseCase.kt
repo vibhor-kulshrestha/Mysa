@@ -1,13 +1,18 @@
-package ai.mysmartassistant.mysa.domain.auth
+package ai.mysmartassistant.mysa.domain.usecase.auth
 
+import ai.mysmartassistant.mysa.core.network.ApiResult
+import ai.mysmartassistant.mysa.core.network.mapSuccess
 import ai.mysmartassistant.mysa.data.auth.dto.PhoneLoginDto
 import ai.mysmartassistant.mysa.data.auth.dto.TruecallerLoginDto
 import ai.mysmartassistant.mysa.data.auth.dto.VerifyRequestDto
 import ai.mysmartassistant.mysa.data.session.SessionLocalDataSource
-import ai.mysmartassistant.mysa.core.network.ApiResult
+import ai.mysmartassistant.mysa.domain.auth.AuthRepository
+import ai.mysmartassistant.mysa.domain.auth.CommonLoginData
+import ai.mysmartassistant.mysa.domain.auth.LoginIntent
+import ai.mysmartassistant.mysa.domain.auth.LoginMedium
+import ai.mysmartassistant.mysa.domain.auth.LoginNextStep
 import ai.mysmartassistant.mysa.domain.device.DeviceInfoProvider
 import ai.mysmartassistant.mysa.domain.location.CountryProvider
-import ai.mysmartassistant.mysa.core.network.mapSuccess
 import jakarta.inject.Inject
 
 class VerifyLoginUseCase @Inject constructor(

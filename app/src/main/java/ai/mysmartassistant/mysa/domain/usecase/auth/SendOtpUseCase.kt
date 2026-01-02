@@ -1,6 +1,8 @@
-package ai.mysmartassistant.mysa.domain.auth
+package ai.mysmartassistant.mysa.domain.usecase.auth
 
 import ai.mysmartassistant.mysa.core.network.ApiResult
+import ai.mysmartassistant.mysa.domain.auth.AuthRepository
+import ai.mysmartassistant.mysa.domain.auth.LoginMedium
 import javax.inject.Inject
 
 class SendOtpUseCase @Inject constructor(

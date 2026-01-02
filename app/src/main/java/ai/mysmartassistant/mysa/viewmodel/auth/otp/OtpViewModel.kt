@@ -5,8 +5,8 @@ import ai.mysmartassistant.mysa.domain.auth.LoginIntent.*
 import ai.mysmartassistant.mysa.domain.auth.LoginMedium
 import ai.mysmartassistant.mysa.domain.auth.LoginNextStep
 import ai.mysmartassistant.mysa.ui.auth.LoginUiEvent
-import ai.mysmartassistant.mysa.domain.auth.SendOtpUseCase
-import ai.mysmartassistant.mysa.domain.auth.VerifyLoginUseCase
+import ai.mysmartassistant.mysa.domain.usecase.auth.SendOtpUseCase
+import ai.mysmartassistant.mysa.domain.usecase.auth.VerifyLoginUseCase
 import ai.mysmartassistant.mysa.ui.auth.otp.OtpUIEvents
 import ai.mysmartassistant.mysa.ui.auth.otp.OtpUiState
 import android.util.Log

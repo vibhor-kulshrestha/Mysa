@@ -5,20 +5,26 @@ import ai.mysmartassistant.mysa.ui.common.ResponsiveNavScaffold
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 
 @Composable
 fun ChatScreen(
     windowSizeClass: WindowSizeClass,
 ) {
+    var text by rememberSaveable { mutableStateOf("") }
+
+    val inputState = ChatInputUiState(
+        text = text,
+        isRecording = false
+    )
     ResponsiveNavScaffold(
         windowSizeClass = windowSizeClass,
         isHomeScreen = true,
@@ -30,7 +36,7 @@ fun ChatScreen(
         drawerContent = {
             AppDrawer()
         }
-    ) { _->
+    ) { _ ->
 
         Column(
             modifier = Modifier
@@ -42,25 +48,20 @@ fun ChatScreen(
                 modifier = Modifier.weight(1f)
             )
 
-            ChatInputBar()
+            ChatInputBar(
+                state = inputState,
+                onEvent = { event ->
+                    when (event) {
+                        ChatInputEvent.AttachClicked -> TODO()
+                        ChatInputEvent.EmojiClicked -> TODO()
+                        ChatInputEvent.MicLongPressed -> TODO()
+                        ChatInputEvent.SendClicked -> TODO()
+                        is ChatInputEvent.TextChanged -> text = event.value
+                    }
+                }
+            )
         }
     }
-}
-
-
-@Composable
-fun ChatInputBar() {
-    var text = remember { mutableStateOf("") }
-    TextField(
-        value = text.value,
-        onValueChange = { text.value = it },
-        label = { Text("Enter your name") },
-        placeholder = { Text("John Doe") },
-        singleLine = true,
-        modifier = Modifier
-            .fillMaxWidth()
-
-    )
 }
 
 @Composable

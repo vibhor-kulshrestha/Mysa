@@ -1,8 +1,11 @@
-package ai.mysmartassistant.mysa.domain.auth
+package ai.mysmartassistant.mysa.domain.usecase.auth
 
 import ai.mysmartassistant.mysa.core.network.ApiResult
-import ai.mysmartassistant.mysa.domain.location.CountryProvider
 import ai.mysmartassistant.mysa.core.network.mapSuccess
+import ai.mysmartassistant.mysa.domain.auth.AuthRepository
+import ai.mysmartassistant.mysa.domain.auth.LoginMedium
+import ai.mysmartassistant.mysa.domain.auth.TruecallerCapability
+import ai.mysmartassistant.mysa.domain.location.CountryProvider
 import jakarta.inject.Inject
 
 class FetchLoginOptionsUseCase @Inject constructor(

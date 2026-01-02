@@ -1,7 +1,7 @@
 package ai.mysmartassistant.mysa.viewmodel
 
 import ai.mysmartassistant.mysa.core.network.ApiResult
-import ai.mysmartassistant.mysa.domain.onboard.UpdateProfileUseCase
+import ai.mysmartassistant.mysa.domain.usecase.onboard.UpdateProfileUseCase
 import ai.mysmartassistant.mysa.ui.onboard.OnboardingAction
 import ai.mysmartassistant.mysa.ui.onboard.OnboardingEvent
 import ai.mysmartassistant.mysa.ui.onboard.OnboardingUIState

@@ -115,7 +115,7 @@ dependencies {
     implementation(libs.play.services.auth.api.phone)
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
-
+    implementation(libs.androidx.compose.material.icons.extended)
     implementation(libs.truecaller.sdk)
 
     testImplementation(libs.junit)

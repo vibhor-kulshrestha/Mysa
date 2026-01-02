@@ -2,13 +2,13 @@ package ai.mysmartassistant.mysa.viewmodel.auth
 
 import ai.mysmartassistant.mysa.data.auth.TrueCallerAuthPayload
 import ai.mysmartassistant.mysa.core.network.ApiResult
-import ai.mysmartassistant.mysa.domain.auth.FetchLoginOptionsUseCase
+import ai.mysmartassistant.mysa.domain.usecase.auth.FetchLoginOptionsUseCase
 import ai.mysmartassistant.mysa.domain.auth.LoginIntent
 import ai.mysmartassistant.mysa.domain.auth.LoginMedium
 import ai.mysmartassistant.mysa.domain.auth.LoginNextStep
 import ai.mysmartassistant.mysa.ui.auth.LoginUiEvent
-import ai.mysmartassistant.mysa.domain.auth.SendOtpUseCase
-import ai.mysmartassistant.mysa.domain.auth.VerifyLoginUseCase
+import ai.mysmartassistant.mysa.domain.usecase.auth.SendOtpUseCase
+import ai.mysmartassistant.mysa.domain.usecase.auth.VerifyLoginUseCase
 import ai.mysmartassistant.mysa.domain.location.CountryDialingCodeResolver
 import ai.mysmartassistant.mysa.domain.location.CountryProvider
 import ai.mysmartassistant.mysa.ui.auth.LoginMode

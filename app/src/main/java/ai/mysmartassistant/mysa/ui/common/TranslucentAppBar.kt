@@ -23,8 +23,8 @@ fun TranslucentAppBar(
     Surface(
         modifier = modifier
             .fillMaxWidth(),
-        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.75f),
-        tonalElevation = 0.dp
+        color = MaterialTheme.colorScheme.primaryContainer,
+        shadowElevation = 4.dp
     ) {
         Row(
             modifier = Modifier

@@ -1,9 +1,10 @@
-package ai.mysmartassistant.mysa.domain.onboard
+package ai.mysmartassistant.mysa.domain.usecase.onboard
 
 import ai.mysmartassistant.mysa.core.network.ApiResult
 import ai.mysmartassistant.mysa.core.network.mapSuccess
 import ai.mysmartassistant.mysa.data.onboard.dto.ProfileRequestDto
 import ai.mysmartassistant.mysa.data.onboard.dto.toProfileDto
+import ai.mysmartassistant.mysa.domain.onboard.OnboardRepository
 import ai.mysmartassistant.mysa.domain.session.SessionRepository
 import javax.inject.Inject
 
