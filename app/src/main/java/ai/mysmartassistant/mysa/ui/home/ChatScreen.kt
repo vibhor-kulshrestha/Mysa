@@ -99,10 +99,6 @@ fun ChatScreen(
                 AttachmentItem(name = "Schedule\nMeetings", icon = Icons.Outlined.CalendarMonth, Color(0xFF0FA9E2)),
                 AttachmentItem(name = "Upload\nDocuments", icon = Icons.Outlined.UploadFile, Color(0xFFA68EFF)),
                 AttachmentItem(name = "Take\nNotes", icon = Icons.Outlined.EditNote, Color(0xFFD2A351)),
-                AttachmentItem(name = "Take\nNotes", icon = Icons.Outlined.EditNote, Color(0xFFD2A351)),
-                AttachmentItem(name = "Take\nNotes", icon = Icons.Outlined.EditNote, Color(0xFFD2A351)),
-                AttachmentItem(name = "Take\nNotes", icon = Icons.Outlined.EditNote, Color(0xFFD2A351)),
-                AttachmentItem(name = "Take\nNotes", icon = Icons.Outlined.EditNote, Color(0xFFD2A351)),
             )
         )
     }

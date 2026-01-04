@@ -76,7 +76,7 @@ fun ChatInputBar(
     val scope = rememberCoroutineScope()
     val density = LocalDensity.current
     val clipBuffer = with(density) { 10.dp.toPx() }
-    val barPad = with(density) { 5.dp.toPx() }
+    val barPad = with(density) { 10.dp.toPx() }
     var buttonX by remember { mutableFloatStateOf(0f) }
     var barBottomY by remember { mutableFloatStateOf(0f) }
 
@@ -99,8 +99,7 @@ fun ChatInputBar(
             .padding(horizontal = 10.dp)
             .padding(bottom = 5.dp)
             .onGloballyPositioned {
-                // Capture Bottom Y of the Input Bar
-                barBottomY = it.positionInRoot().y - barPad
+                barBottomY = it.size.height + barPad
             },
         verticalAlignment = Alignment.Bottom
     ) {

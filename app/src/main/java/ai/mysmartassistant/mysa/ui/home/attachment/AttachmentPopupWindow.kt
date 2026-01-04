@@ -12,13 +12,14 @@ import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -49,7 +50,6 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -170,6 +170,16 @@ private fun AttachmentPopupContent(
     val screenWidthPx = with(density) { screenWidth.toPx() }
     val pivotX = if (screenWidthPx > 0) pinCoords.x / screenWidthPx else 0f
 
+    // Logic for closed keyboard
+    val isKeyboardOpen = keyboardHeight > 0.dp
+    val navBottom = WindowInsets.navigationBars.getBottom(density)
+
+    val activeHeight = if (isKeyboardOpen) keyboardHeight else 320.dp
+    val bottomPad = if (isKeyboardOpen) 0.dp else with(density) { (pinCoords.y + navBottom).toDp() }
+
+    val pivotY = if (isKeyboardOpen) 0f else 1f
+
+
     DisposableEffect(Unit) {
         onDispose { }
     }
@@ -187,22 +197,28 @@ private fun AttachmentPopupContent(
         AnimatedVisibility(
             visibleState = visibleState,
             enter = scaleIn(
-                transformOrigin = TransformOrigin(pivotX, 0f),
+                transformOrigin = TransformOrigin(pivotX, pivotY),
                 animationSpec = tween(150),
                 initialScale = 0f
             ),
             exit = scaleOut(
-                transformOrigin = TransformOrigin(pivotX, 0f),
+                transformOrigin = TransformOrigin(pivotX, pivotY),
                 animationSpec = tween(150),
                 targetScale = 0f
             ),
-            modifier = Modifier.align(Alignment.BottomStart)
+            modifier = Modifier
+                .align(Alignment.BottomStart)
+                .padding(bottom = bottomPad)
+                .padding(horizontal = 10.dp)
         ) {
             Box(
                 modifier = Modifier
                     .width(screenWidth)
-                    .height(keyboardHeight)
-                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                    .height(activeHeight)
+                    .background(
+                        MaterialTheme.colorScheme.surfaceVariant,
+                        MaterialTheme.shapes.large
+                    )
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null
@@ -234,8 +250,15 @@ fun Attachment(item: AttachmentItem) {
         Box(
             modifier = Modifier
                 .background(
-                    MaterialTheme.colorScheme.scrim.copy(alpha = 0.8f),
+                    MaterialTheme.colorScheme.background,
                     MaterialTheme.shapes.medium
+                )
+                .border(
+                    border = BorderStroke(
+                        1.dp,
+                        MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
+                    ),
+                    shape = MaterialTheme.shapes.medium
                 )
                 .padding(20.dp),
         ) {
@@ -254,7 +277,7 @@ fun Attachment(item: AttachmentItem) {
             maxLines = 2,
             textAlign = TextAlign.Center,
             style = MaterialTheme.typography.labelMedium.copy(
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onBackground
             )
         )
     }
