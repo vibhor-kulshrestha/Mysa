@@ -1,7 +1,12 @@
 package ai.mysmartassistant.mysa.ui.home
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.AnimationVector1D
+import androidx.compose.animation.core.FastOutLinearInEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -9,12 +14,14 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -32,17 +39,29 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.TransformOrigin
-import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.positionChange
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 
 
 @Composable
@@ -51,18 +70,55 @@ fun ChatInputBar(
     onEvent: (ChatInputEvent) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val offsetAnim = remember { Animatable(0f) }
+    var maxDrag by remember { mutableFloatStateOf(0f) }
+    val scaleAnim = remember { Animatable(1f) }
+    val scope = rememberCoroutineScope()
+    val density = LocalDensity.current
+    val clipBuffer = with(density) { 10.dp.toPx() }
+    val barPad = with(density) { 5.dp.toPx() }
+    var buttonX by remember { mutableFloatStateOf(0f) }
+    var barBottomY by remember { mutableFloatStateOf(0f) }
+
+    LaunchedEffect(buttonX, barBottomY) {
+        if (buttonX > 0 && barBottomY > 0) {
+            onEvent(
+                ChatInputEvent.AttachmentPosition(
+                    IntOffset(
+                        buttonX.toInt(),
+                        barBottomY.toInt()
+                    )
+                )
+            )
+        }
+    }
+
     Row(
         modifier = Modifier
-            .padding(horizontal = 8.dp, vertical = 6.dp)
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .padding(horizontal = 10.dp)
+            .padding(bottom = 5.dp)
+            .onGloballyPositioned {
+                // Capture Bottom Y of the Input Bar
+                barBottomY = it.positionInRoot().y - barPad
+            },
         verticalAlignment = Alignment.Bottom
     ) {
-
-        /* Emoji */
         Row(
             modifier = Modifier
-                .background(MaterialTheme.colorScheme.secondaryContainer, RoundedCornerShape(25.dp))
-                .weight(1f),
+                .weight(1f)
+                .onSizeChanged { size ->
+                    maxDrag = size.width.toFloat() * 0.2f
+                }
+                .drawWithContent {
+                    clipRect(right = size.width + offsetAnim.value + clipBuffer) {
+                        this@drawWithContent.drawContent()
+                    }
+                }
+                .background(
+                    MaterialTheme.colorScheme.secondaryContainer,
+                    MaterialTheme.shapes.extraLarge
+                ),
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(
@@ -97,7 +153,12 @@ fun ChatInputBar(
             )
             /* Attachment */
             IconButton(
-                modifier = Modifier.align(Alignment.Bottom),
+                modifier = Modifier
+                    .align(Alignment.Bottom)
+                    .onGloballyPositioned {
+                        // Capture X only
+                        buttonX = it.positionInRoot().x + (it.size.width / 2)
+                    },
                 onClick = { onEvent(ChatInputEvent.AttachClicked) }
             ) {
                 Icon(
@@ -117,10 +178,15 @@ fun ChatInputBar(
         }
         Spacer(modifier.width(10.dp))
         AnimatedMicSendButton(
+            scope = scope,
+            offsetAnim = offsetAnim,
+            scaleAnim = scaleAnim,
             showSend = state.showSend,
+            maxDrag = maxDrag,
             onSend = { onEvent(ChatInputEvent.SendClicked) },
-            onMicPressStart = { },
-            onMicPressEnd = { }
+            onMicPressStart = { onEvent(ChatInputEvent.RecordingStart) },
+            onMicPressEnd = { onEvent(ChatInputEvent.RecordingEnd) },
+            onMicDragCanceled = { onEvent(ChatInputEvent.RecordingCanceled) }
         )
     }
 }
@@ -130,37 +196,66 @@ private fun AnimatedMicSendButton(
     showSend: Boolean,
     onSend: () -> Unit,
     onMicPressStart: () -> Unit,
-    onMicPressEnd: () -> Unit
+    onMicPressEnd: () -> Unit,
+    onMicDragCanceled: () -> Unit,
+    scope: CoroutineScope,
+    offsetAnim: Animatable<Float, AnimationVector1D>,
+    scaleAnim: Animatable<Float, AnimationVector1D>,
+    maxDrag: Float
 ) {
-    var isZoom by remember { mutableStateOf(false) }
-
-    val scale by animateFloatAsState(
-        targetValue = if (isZoom) 2f else 1f,
-        animationSpec = tween(100),
-        label = "mic_zoom"
-    )
-
+    val cancelThreshold = -maxDrag * 0.8f
     Box(
         modifier = Modifier
-            .graphicsLayer {
-                scaleX = scale
-                scaleY = scale
-                transformOrigin = TransformOrigin.Center
-            }
+            .offset { IntOffset(offsetAnim.value.roundToInt(), 0) }
+            .scale(scaleAnim.value)
             .pointerInput(showSend) {
-                awaitPointerEventScope {
-                    while (true) {
-                        awaitFirstDown()
-                        if (showSend) {
-                            waitForUpOrCancellation()
-                            onSend()
+                awaitEachGesture {
+                    val down = awaitFirstDown(requireUnconsumed = false)
+                    if (showSend) {
+                        val up = waitForUpOrCancellation()
+                        if (up != null) onSend()
+                    } else {
+                        val dragPointer = down.id
+                        scope.launch {
+                            scaleAnim.animateTo(
+                                2f,
+                                tween(90, easing = FastOutLinearInEasing)
+                            )
+                        }
+                        onMicPressStart()
+                        var isCancelled = false
+                        while (true) {
+                            val event = awaitPointerEvent()
+                            val change = event.changes.firstOrNull { it.id == dragPointer }
+                            if (change == null || !change.pressed) break
+
+                            val dragAmount = change.positionChange().x
+                            if (dragAmount != 0f) {
+                                val newOffset = (offsetAnim.value + dragAmount)
+                                    .coerceIn(-maxDrag, 0f)
+                                runCatching {
+                                    scope.launch { offsetAnim.snapTo(newOffset) }
+                                }
+                                change.consume()
+                            }
+                        }
+                        isCancelled = offsetAnim.value <= cancelThreshold
+                        scope.launch {
+                            scaleAnim.animateTo(
+                                1f,
+                                tween(120, easing = LinearOutSlowInEasing)
+                            )
+                        }
+
+                        scope.launch {
+                            offsetAnim.animateTo(
+                                0f,
+                                animationSpec = spring(stiffness = Spring.StiffnessMediumLow)
+                            )
+                        }
+                        if (isCancelled) {
+                            onMicDragCanceled()
                         } else {
-                            isZoom = true
-                            onMicPressStart()
-
-                            waitForUpOrCancellation()
-
-                            isZoom = false
                             onMicPressEnd()
                         }
                     }

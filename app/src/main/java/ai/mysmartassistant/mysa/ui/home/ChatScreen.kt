@@ -2,28 +2,43 @@ package ai.mysmartassistant.mysa.ui.home
 
 import ai.mysmartassistant.mysa.ui.common.AppDrawer
 import ai.mysmartassistant.mysa.ui.common.ResponsiveNavScaffold
+import ai.mysmartassistant.mysa.ui.home.attachment.AttachmentItem
+import ai.mysmartassistant.mysa.ui.home.attachment.PopupWindow
+import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.CalendarMonth
+import androidx.compose.material.icons.outlined.EditNote
+import androidx.compose.material.icons.outlined.Notifications
+import androidx.compose.material.icons.outlined.UploadFile
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.IntOffset
 
 @Composable
 fun ChatScreen(
     windowSizeClass: WindowSizeClass,
 ) {
     var text by rememberSaveable { mutableStateOf("") }
-
+    var dragX by rememberSaveable { mutableFloatStateOf(0f) }
+    var isRecording by rememberSaveable { mutableStateOf(false) }
+    val visibleState = remember { MutableTransitionState(false) }
+    var pinCoords by remember { mutableStateOf(IntOffset.Zero) }
     val inputState = ChatInputUiState(
         text = text,
-        isRecording = false
+        isRecording = isRecording,
+        dragX = dragX
     )
     ResponsiveNavScaffold(
         windowSizeClass = windowSizeClass,
@@ -52,15 +67,44 @@ fun ChatScreen(
                 state = inputState,
                 onEvent = { event ->
                     when (event) {
-                        ChatInputEvent.AttachClicked -> TODO()
-                        ChatInputEvent.EmojiClicked -> TODO()
-                        ChatInputEvent.MicLongPressed -> TODO()
-                        ChatInputEvent.SendClicked -> TODO()
+                        ChatInputEvent.AttachClicked -> {
+                            visibleState.targetState = !visibleState.targetState
+                        }
+
+                        ChatInputEvent.EmojiClicked -> {}
+                        is ChatInputEvent.DragX -> dragX = event.value
+                        is ChatInputEvent.AttachmentPosition -> pinCoords = event.value
+                        ChatInputEvent.SendClicked -> {}
                         is ChatInputEvent.TextChanged -> text = event.value
+                        ChatInputEvent.RecordingStart -> {
+                            isRecording = true
+                        }
+
+                        ChatInputEvent.RecordingEnd -> {
+                            isRecording = false
+                        }
+
+                        ChatInputEvent.RecordingCanceled -> {
+                            isRecording = false
+                        }
                     }
                 }
             )
         }
+        PopupWindow(
+            visibleState = visibleState,
+            pinCoords = pinCoords,
+            listOf(
+                AttachmentItem(name = "Set\nReminders", icon = Icons.Outlined.Notifications, Color(0xFF49C97D)),
+                AttachmentItem(name = "Schedule\nMeetings", icon = Icons.Outlined.CalendarMonth, Color(0xFF0FA9E2)),
+                AttachmentItem(name = "Upload\nDocuments", icon = Icons.Outlined.UploadFile, Color(0xFFA68EFF)),
+                AttachmentItem(name = "Take\nNotes", icon = Icons.Outlined.EditNote, Color(0xFFD2A351)),
+                AttachmentItem(name = "Take\nNotes", icon = Icons.Outlined.EditNote, Color(0xFFD2A351)),
+                AttachmentItem(name = "Take\nNotes", icon = Icons.Outlined.EditNote, Color(0xFFD2A351)),
+                AttachmentItem(name = "Take\nNotes", icon = Icons.Outlined.EditNote, Color(0xFFD2A351)),
+                AttachmentItem(name = "Take\nNotes", icon = Icons.Outlined.EditNote, Color(0xFFD2A351)),
+            )
+        )
     }
 }
 
