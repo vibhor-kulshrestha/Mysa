@@ -141,26 +141,40 @@ fun ChatInputBar(
                     .animateContentSize(),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                // Switch between Input and Recording Content
-                if ((state.isRecording || currentDragX < -5f) && !isCancelling) {
-                    RecordingContent(
-                        modifier = Modifier
-                            .padding(horizontal = 8.dp)
-                            .defaultMinSize(minHeight = 48.dp),
-                        dragOffset = currentDragX
-                    )
-                } else {
-                    InputContent(
-                        onEvent = onEvent,
-                        state = state,
-                        buttonX = { button ->
-                            buttonX = button
-                        },
-                        onEmojiPositioned = { pos ->
-                            emojiPosition = pos
-                        },
-                        isCancelling = isCancelling
-                    )
+                val showRecording = (state.isRecording || currentDragX < -5f) && !isCancelling
+                AnimatedContent(
+                    targetState = showRecording,
+                    transitionSpec = {
+                        (fadeIn() + scaleIn(initialScale = 0.92f)).togetherWith(fadeOut() + scaleOut(targetScale = 0.92f))
+                    },
+                    label = "input_recording_switch",
+                    modifier = Modifier.weight(1f) // Ensure AnimatedContent takes available space
+                ) { isRecording ->
+                    if (isRecording) {
+                        RecordingContent(
+                            modifier = Modifier
+                                .padding(horizontal = 8.dp)
+                                .defaultMinSize(minHeight = 48.dp),
+                            dragOffset = currentDragX
+                        )
+                    } else {
+                        // InputContent requires RowScope, so we provide it via a nested Row
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            InputContent(
+                                onEvent = onEvent,
+                                state = state,
+                                buttonX = { button ->
+                                    buttonX = button
+                                },
+                                onEmojiPositioned = { pos ->
+                                    emojiPosition = pos
+                                },
+                                isCancelling = isCancelling
+                            )
+                        }
+                    }
                 }
             }
             Spacer(modifier.width(10.dp))

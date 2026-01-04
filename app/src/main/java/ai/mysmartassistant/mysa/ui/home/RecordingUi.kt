@@ -34,6 +34,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
@@ -118,7 +119,10 @@ fun RecordingCancellationOverlay(
     onAnimationFinished: () -> Unit,
     modifier: Modifier
 ) {
-    val micX = remember { Animatable(micStartOffset.x.toFloat()) }
+    val pad = with(LocalDensity.current) {
+        15.dp.toPx()
+    }
+    val micX = remember { Animatable(micStartOffset.x.toFloat() - pad) }
     val micY = remember { Animatable(micStartOffset.y.toFloat()) }
     val micRotation = remember { Animatable(0f) }
     val micScale = remember { Animatable(1f) }
@@ -194,7 +198,7 @@ fun RecordingCancellationOverlay(
 @Composable
 fun DustbinIcon(lidRotation: Float) {
     // Custom drawing for Dustbin to allow lid rotation
-    Canvas(modifier = Modifier.size(50.dp)) {
+    Canvas(modifier = Modifier.size(45.dp)) {
         val w = size.width
         val h = size.height
 
