@@ -6,17 +6,13 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.Mic
@@ -38,8 +34,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
@@ -121,7 +115,8 @@ fun RecordingContent(
 fun RecordingCancellationOverlay(
     micStartOffset: IntOffset,
     binTargetOffset: IntOffset,
-    onAnimationFinished: () -> Unit
+    onAnimationFinished: () -> Unit,
+    modifier: Modifier
 ) {
     val micX = remember { Animatable(micStartOffset.x.toFloat()) }
     val micY = remember { Animatable(micStartOffset.y.toFloat()) }
@@ -171,8 +166,7 @@ fun RecordingCancellationOverlay(
         onAnimationFinished()
     }
 
-    Box(modifier = Modifier.fillMaxWidth().height(70.dp)) {
-        // Mic Icon (Flying)
+    Box(modifier = modifier) {
         Box(
             modifier = Modifier
                 .offset { IntOffset(micX.value.roundToInt(), micY.value.roundToInt()) }

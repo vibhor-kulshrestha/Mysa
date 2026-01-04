@@ -188,6 +188,7 @@ fun ChatInputBar(
             val relativeBinTarget = emojiPosition - barRootPosition
 
             RecordingCancellationOverlay(
+                modifier = Modifier.matchParentSize(),
                 micStartOffset = relativeBinTarget, // Start at Emoji
                 binTargetOffset = relativeBinTarget, // End at Emoji
                 onAnimationFinished = {
