@@ -18,9 +18,11 @@ import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.Box
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -135,13 +137,16 @@ fun ChatInputBar(
                     .background(
                         MaterialTheme.colorScheme.secondaryContainer,
                         MaterialTheme.shapes.extraLarge
-                    ),
+                    )
+                    .animateContentSize(),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 // Switch between Input and Recording Content
                 if ((state.isRecording || currentDragX < -5f) && !isCancelling) {
                     RecordingContent(
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 9.dp),
+                        modifier = Modifier
+                            .padding(horizontal = 8.dp)
+                            .defaultMinSize(minHeight = 48.dp),
                         dragOffset = currentDragX
                     )
                 } else {
