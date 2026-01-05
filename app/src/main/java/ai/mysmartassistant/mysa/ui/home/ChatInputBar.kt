@@ -1,13 +1,11 @@
+@file:OptIn(ExperimentalMaterial3ExpressiveApi::class)
+
 package ai.mysmartassistant.mysa.ui.home
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
-import androidx.compose.animation.core.FastOutLinearInEasing
-import androidx.compose.animation.core.LinearOutSlowInEasing
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
@@ -18,7 +16,6 @@ import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.layout.Box
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
@@ -36,6 +33,7 @@ import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.outlined.AttachFile
 import androidx.compose.material.icons.outlined.EmojiEmotions
 import androidx.compose.material.icons.outlined.PhotoCamera
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -142,10 +140,28 @@ fun ChatInputBar(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 val showRecording = (state.isRecording || currentDragX < -5f) && !isCancelling
+                val spatial = MaterialTheme.motionScheme.defaultSpatialSpec<Float>()
+                val effects = MaterialTheme.motionScheme.fastEffectsSpec<Float>()
                 AnimatedContent(
                     targetState = showRecording,
                     transitionSpec = {
-                        (fadeIn() + scaleIn(initialScale = 0.92f)).togetherWith(fadeOut() + scaleOut(targetScale = 0.92f))
+                        if (targetState) {
+                            (fadeIn(animationSpec = effects) +
+                                    scaleIn(
+                                        initialScale = 0.92f,
+                                        animationSpec = spatial
+                                    )).togetherWith(
+                                fadeOut(animationSpec = effects) +
+                                        scaleOut(targetScale = 0.92f, animationSpec = spatial)
+                            ).apply {targetContentZIndex = 1f}
+                        } else {
+                            (fadeIn(animationSpec = effects) +
+                                    scaleIn(initialScale = 0.92f, animationSpec = spatial))
+                                .togetherWith(
+                                    fadeOut(animationSpec = effects) +
+                                            scaleOut(targetScale = 0.92f, animationSpec = spatial)
+                                ).apply {targetContentZIndex = 1f}
+                        }
                     },
                     label = "input_recording_switch",
                     modifier = Modifier.weight(1f) // Ensure AnimatedContent takes available space
@@ -298,6 +314,8 @@ private fun AnimatedMicSendButton(
     scaleAnim: Animatable<Float, AnimationVector1D>,
     maxDrag: Float
 ) {
+    val scaleSpec = MaterialTheme.motionScheme.fastSpatialSpec<Float>()
+    val offsetSpec = MaterialTheme.motionScheme.defaultEffectsSpec<Float>()
     Box(
         modifier = Modifier
             .offset { IntOffset(offsetAnim.value.roundToInt(), 0) }
@@ -313,7 +331,7 @@ private fun AnimatedMicSendButton(
                         scope.launch {
                             scaleAnim.animateTo(
                                 2f,
-                                tween(90, easing = FastOutLinearInEasing)
+                                scaleSpec
                             )
                         }
                         onMicPressStart()
@@ -348,14 +366,14 @@ private fun AnimatedMicSendButton(
                         scope.launch {
                             scaleAnim.animateTo(
                                 1f,
-                                tween(120, easing = LinearOutSlowInEasing)
+                                scaleSpec
                             )
                         }
 
                         scope.launch {
                             offsetAnim.animateTo(
                                 0f,
-                                animationSpec = spring(stiffness = Spring.StiffnessMediumLow)
+                                animationSpec = offsetSpec
                             )
                         }
                         onDrag(0f) // Reset drag

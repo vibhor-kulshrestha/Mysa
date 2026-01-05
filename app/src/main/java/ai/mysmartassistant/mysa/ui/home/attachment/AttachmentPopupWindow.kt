@@ -10,6 +10,8 @@ import android.widget.PopupWindow
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.BorderStroke
@@ -34,6 +36,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -157,6 +160,7 @@ private fun rememberAttachmentPopupWindow(context: Context): PopupWindow {
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun AttachmentPopupContent(
     visibleState: MutableTransitionState<Boolean>,
@@ -178,7 +182,7 @@ private fun AttachmentPopupContent(
     val bottomPad = if (isKeyboardOpen) 0.dp else with(density) { (pinCoords.y + navBottom).toDp() }
 
     val pivotY = if (isKeyboardOpen) 0f else 1f
-
+    val fastSpatialSpec = MaterialTheme.motionScheme.fastSpatialSpec<Float>()
 
     DisposableEffect(Unit) {
         onDispose { }
@@ -198,13 +202,17 @@ private fun AttachmentPopupContent(
             visibleState = visibleState,
             enter = scaleIn(
                 transformOrigin = TransformOrigin(pivotX, pivotY),
-                animationSpec = tween(150),
+                animationSpec = fastSpatialSpec,
                 initialScale = 0f
+            )+ fadeIn(
+                animationSpec = tween(100)
             ),
             exit = scaleOut(
                 transformOrigin = TransformOrigin(pivotX, pivotY),
-                animationSpec = tween(150),
+                animationSpec = tween(100),
                 targetScale = 0f
+            )+ fadeOut(
+                animationSpec = tween(75)
             ),
             modifier = Modifier
                 .align(Alignment.BottomStart)
@@ -230,7 +238,7 @@ private fun AttachmentPopupContent(
                     columns = GridCells.Adaptive(minSize = 100.dp),
                     contentPadding = PaddingValues(15.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    horizontalArrangement = Arrangement.spacedBy(15.dp)
                 ) {
                     items(items) { item ->
                         Attachment(item)
@@ -260,7 +268,7 @@ fun Attachment(item: AttachmentItem) {
                     ),
                     shape = MaterialTheme.shapes.medium
                 )
-                .padding(20.dp),
+                .padding(15.dp),
         ) {
             Icon(
                 modifier = Modifier.size(35.dp),

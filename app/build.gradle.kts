@@ -116,6 +116,7 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
     implementation(libs.androidx.compose.material.icons.extended)
+    implementation(libs.androidx.material3)
     implementation(libs.truecaller.sdk)
 
     testImplementation(libs.junit)

@@ -12,15 +12,18 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun LoginSection(
     uiState: LoginUIState,
@@ -43,15 +46,23 @@ fun LoginSection(
         }
 
         else -> {
+            val spatialSpec = MaterialTheme.motionScheme.defaultSpatialSpec<IntOffset>()
+            val effectSpec = MaterialTheme.motionScheme.defaultEffectsSpec<Float>()
             AnimatedContent(
                 targetState = uiState.mode,
                 transitionSpec = {
                     slideInVertically(
+                        animationSpec = spatialSpec,
                         initialOffsetY = { it }
-                    ) + fadeIn() togetherWith
+                    ) + fadeIn(
+                        animationSpec = effectSpec
+                    ) togetherWith
                             slideOutVertically(
+                                animationSpec = spatialSpec,
                                 targetOffsetY = { -it / 2 }
-                            ) + fadeOut()
+                            ) + fadeOut(
+                        animationSpec = effectSpec
+                    )
                 },
                 label = "login_mode_transition"
             ) { mode ->

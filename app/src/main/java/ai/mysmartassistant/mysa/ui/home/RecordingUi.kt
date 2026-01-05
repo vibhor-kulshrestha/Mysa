@@ -4,6 +4,9 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
@@ -16,6 +19,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.Mic
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -112,6 +116,7 @@ fun RecordingContent(
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun RecordingCancellationOverlay(
     micStartOffset: IntOffset,
@@ -120,51 +125,62 @@ fun RecordingCancellationOverlay(
     modifier: Modifier
 ) {
     val pad = with(LocalDensity.current) {
-        15.dp.toPx()
+        7.dp.toPx().roundToInt()
     }
-    val micX = remember { Animatable(micStartOffset.x.toFloat() - pad) }
+    val micX = remember { Animatable(micStartOffset.x.toFloat()) }
     val micY = remember { Animatable(micStartOffset.y.toFloat()) }
     val micRotation = remember { Animatable(0f) }
     val micScale = remember { Animatable(1f) }
-
+    val flightDuration = 600
     val binScale = remember { Animatable(0f) }
     val binLidRotation = remember { Animatable(0f) }
-
+    val gravityUp = tween<Float>(flightDuration / 2, easing = LinearOutSlowInEasing)
+    val gravityDown = tween<Float>(flightDuration / 2, easing = FastOutLinearInEasing)
+    val horizontalVelocity = tween<Float>(flightDuration, easing = LinearEasing)
+    val defaultSpatialSpec = MaterialTheme.motionScheme.defaultSpatialSpec<Float>()
+    val fastSpatial = MaterialTheme.motionScheme.fastSpatialSpec<Float>()
     LaunchedEffect(Unit) {
         launch {
-            binScale.animateTo(1f, tween(300, easing = FastOutSlowInEasing))
+            binScale.animateTo(
+                targetValue = 1f,
+                animationSpec = defaultSpatialSpec
+            )
         }
 
         launch {
-            micX.animateTo(binTargetOffset.x.toFloat(), tween(600, easing = FastOutSlowInEasing))
+            micX.animateTo(binTargetOffset.x.toFloat(), horizontalVelocity)
         }
         launch {
-            micY.animateTo(micStartOffset.y - 100f, tween(300, easing = FastOutSlowInEasing))
-            micY.animateTo(binTargetOffset.y.toFloat(), tween(300, easing = FastOutLinearInEasing))
+            micY.animateTo(micStartOffset.y - 200f, gravityUp)
+            micY.animateTo(binTargetOffset.y.toFloat(), gravityDown)
+            launch {
+                binScale.animateTo(0.85f, tween(50, easing = LinearEasing))
+                binScale.animateTo(1f, fastSpatial)
+            }
         }
         launch {
             micRotation.animateTo(-360f, tween(600, easing = LinearEasing)) // Spin
         }
 
-        delay(400)
+        delay(450)
 
         launch {
-            binLidRotation.animateTo(-45f, tween(100))
+            binLidRotation.animateTo(-60f, fastSpatial)
         }
 
-        delay(200)
+        delay(150)
 
         launch {
-            micScale.animateTo(0f, tween(100))
+            micScale.animateTo(0f, tween(50))
         }
 
         delay(100)
 
-        binLidRotation.animateTo(0f, tween(150))
+        binLidRotation.animateTo(0f, fastSpatial)
 
-        delay(100)
+        delay(300)
 
-        binScale.animateTo(0f, tween(200))
+        binScale.animateTo(0f, tween(200, easing = FastOutLinearInEasing))
 
         delay(200)
         onAnimationFinished()
@@ -187,7 +203,7 @@ fun RecordingCancellationOverlay(
 
         Box(
             modifier = Modifier
-                .offset { binTargetOffset }
+                .offset { binTargetOffset.plus(IntOffset(pad, 0)) }
                 .scale(binScale.value)
         ) {
             DustbinIcon(lidRotation = binLidRotation.value)
