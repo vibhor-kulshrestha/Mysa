@@ -136,6 +136,7 @@ fun ChatInputBar(
                         MaterialTheme.colorScheme.secondaryContainer,
                         MaterialTheme.shapes.extraLarge
                     )
+                    .padding(vertical = 2.dp)
                     .animateContentSize(),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
@@ -170,7 +171,7 @@ fun ChatInputBar(
                         RecordingContent(
                             modifier = Modifier
                                 .padding(horizontal = 8.dp)
-                                .defaultMinSize(minHeight = 48.dp),
+                                .defaultMinSize(minHeight = 49.dp),
                             dragOffset = currentDragX
                         )
                     } else {
@@ -391,7 +392,7 @@ private fun AnimatedMicSendButton(
     ) {
         Box(
             modifier = Modifier
-                .size(44.dp)
+                .size(50.dp)
                 .background(
                     MaterialTheme.colorScheme.primaryContainer,
                     CircleShape
