@@ -43,8 +43,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCompositionContext
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.TransformOrigin
@@ -91,21 +94,28 @@ fun PopupWindow(
     val compositionContext = rememberCompositionContext()
 
     val popupWindow = rememberAttachmentPopupWindow(context)
+    var contentVisibleState by remember { mutableStateOf<MutableTransitionState<Boolean>?>(null) }
 
     LaunchedEffect(visibleState.targetState) {
         if (visibleState.targetState) {
+            val newState = MutableTransitionState(false).apply { targetState = true }
+            contentVisibleState = newState
+
             val composeView = ComposeView(context).apply {
                 setViewTreeLifecycleOwner(lifecycleOwner)
                 setViewTreeSavedStateRegistryOwner(savedStateRegistryOwner)
                 setParentCompositionContext(compositionContext)
 
                 setContent {
-                    AttachmentPopupContent(
-                        visibleState = visibleState,
-                        pinCoords = pinCoords,
-                        keyboardHeight = keyboardHeight,
-                        items = items
-                    )
+                    // contentVisibleState is non-null here
+                    contentVisibleState?.let {
+                        AttachmentPopupContent(
+                            visibleState = it,
+                            pinCoords = pinCoords,
+                            keyboardHeight = keyboardHeight,
+                            items = items
+                        )
+                    }
                 }
             }
             popupWindow.contentView = composeView
@@ -117,18 +127,29 @@ fun PopupWindow(
                     e.printStackTrace()
                 }
             }
+        } else {
+            contentVisibleState?.targetState = false
         }
     }
 
-    LaunchedEffect(visibleState.isIdle, visibleState.targetState) {
-        if (visibleState.isIdle && !visibleState.targetState) {
-            popupWindow.dismiss()
+    val localState = contentVisibleState
+    if (localState != null) {
+        LaunchedEffect(localState.isIdle, localState.targetState) {
+            if (localState.isIdle && !localState.targetState) {
+                popupWindow.dismiss()
+                contentVisibleState = null // Cleanup
+            }
         }
     }
 
-    // Cleanup on complete disposal of this composable
     DisposableEffect(Unit) {
+        popupWindow.setOnDismissListener {
+            if (visibleState.targetState) {
+                visibleState.targetState = false
+            }
+        }
         onDispose {
+            popupWindow.setOnDismissListener(null)
             popupWindow.dismiss()
         }
     }
@@ -139,7 +160,7 @@ private fun rememberAttachmentPopupWindow(context: Context): PopupWindow {
     return remember {
         PopupWindow(context).apply {
             isOutsideTouchable = false
-            isFocusable = false
+            isFocusable = true
             width = ViewGroup.LayoutParams.MATCH_PARENT
             height = ViewGroup.LayoutParams.MATCH_PARENT
             isClippingEnabled = false
@@ -174,7 +195,6 @@ private fun AttachmentPopupContent(
     val screenWidthPx = with(density) { screenWidth.toPx() }
     val pivotX = if (screenWidthPx > 0) pinCoords.x / screenWidthPx else 0f
 
-    // Logic for closed keyboard
     val isKeyboardOpen = keyboardHeight > 0.dp
     val navBottom = WindowInsets.navigationBars.getBottom(density)
 
