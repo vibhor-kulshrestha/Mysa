@@ -3,6 +3,7 @@ package ai.mysmartassistant.mysa.camera.viewmodel
 import ai.mysmartassistant.mysa.camera.domain.usecase.CapturePhotoUseCase
 import ai.mysmartassistant.mysa.camera.domain.usecase.ObserveCameraPreviewUseCase
 import ai.mysmartassistant.mysa.camera.domain.usecase.StartCameraPreviewUseCase
+import ai.mysmartassistant.mysa.camera.domain.usecase.SwitchCameraUseCase
 import ai.mysmartassistant.mysa.camera.ui.CameraUiState
 import androidx.camera.core.SurfaceRequest
 import androidx.lifecycle.LifecycleOwner
@@ -22,7 +23,8 @@ import javax.inject.Inject
 class CameraViewModel @Inject constructor(
     private val startCameraPreview: StartCameraPreviewUseCase,
     private val capturePhoto: CapturePhotoUseCase,
-    private val observePreview: ObserveCameraPreviewUseCase
+    private val observePreview: ObserveCameraPreviewUseCase,
+    private val switchCamera: SwitchCameraUseCase
 ) : ViewModel() {
 
     val surfaceRequest: StateFlow<SurfaceRequest?> =
@@ -42,6 +44,14 @@ class CameraViewModel @Inject constructor(
         ) { t ->
             _uiState.update {
                 it.copy(lastPhotoUri = null, error = t)
+            }
+        }
+    }
+
+    fun toggleCamera(lifecycleOwner: LifecycleOwner) {
+        switchCamera(lifecycleOwner) { t ->
+            _uiState.update {
+                it.copy(error = t)
             }
         }
     }

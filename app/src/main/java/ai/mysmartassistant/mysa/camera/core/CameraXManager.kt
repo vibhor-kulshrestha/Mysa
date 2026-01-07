@@ -27,6 +27,8 @@ class CameraXManager @Inject constructor(
     private val _surfaceRequest = MutableStateFlow<SurfaceRequest?>(null)
     val surfaceRequest: StateFlow<SurfaceRequest?> = _surfaceRequest
 
+    private var cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+
     fun startCamera(
         lifeCycleOwner: LifecycleOwner,
         onError: (Throwable) -> Unit
@@ -39,7 +41,7 @@ class CameraXManager @Inject constructor(
         }
         imageCapture = ImageCapture.Builder()
             .build()
-        val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+        
         try {
             cameraProvider.unbindAll()
             cameraProvider.bindToLifecycle(
@@ -52,6 +54,18 @@ class CameraXManager @Inject constructor(
             Log.e("CameraXManager", "exception occured while starting camera", e)
             onError(e)
         }
+    }
+
+    fun switchCamera(
+        lifeCycleOwner: LifecycleOwner,
+        onError: (Throwable) -> Unit
+    ) {
+        cameraSelector = if (cameraSelector == CameraSelector.DEFAULT_BACK_CAMERA) {
+            CameraSelector.DEFAULT_FRONT_CAMERA
+        } else {
+            CameraSelector.DEFAULT_BACK_CAMERA
+        }
+        startCamera(lifeCycleOwner, onError)
     }
 
     fun takePhoto(

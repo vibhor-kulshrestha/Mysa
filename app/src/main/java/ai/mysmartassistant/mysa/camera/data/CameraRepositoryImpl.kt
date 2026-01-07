@@ -35,4 +35,14 @@ class CameraRepositoryImpl @Inject constructor(
             onError = onError
         )
     }
+
+    override fun switchCamera(
+        lifecycleOwner: LifecycleOwner,
+        onError: (Throwable) -> Unit
+    ) {
+        cameraXManager.switchCamera(
+            lifeCycleOwner = lifecycleOwner,
+            onError = onError
+        )
+    }
 }

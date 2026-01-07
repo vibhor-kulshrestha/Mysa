@@ -18,4 +18,9 @@ interface CameraRepository {
         onSuccess: (Uri) -> Unit,
         onError: (Throwable) -> Unit
     )
+
+    fun switchCamera(
+        lifecycleOwner: LifecycleOwner,
+        onError: (Throwable) -> Unit
+    )
 }
