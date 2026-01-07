@@ -17,6 +17,7 @@ sealed class Route(val route: String) {
     object ProfileDetails : Route("onBoard/profile")
 
     object Chat : Route("home/chat")
+    object Camera : Route("home/camera")
     object History : Route("home/profile")
     object TodayTask : Route("home/todayTask")
     object Reminder : Route("home/reminder")

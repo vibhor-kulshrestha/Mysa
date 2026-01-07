@@ -293,11 +293,11 @@ fun RowScope.InputContent(
     }
     IconButton(
         modifier = Modifier.align(Alignment.Bottom),
-        onClick = { onEvent(ChatInputEvent.AttachClicked) }
+        onClick = { onEvent(ChatInputEvent.OpenCamera) }
     ) {
         Icon(
             Icons.Outlined.PhotoCamera,
-            contentDescription = "Attach"
+            contentDescription = "camera"
         )
     }
 }

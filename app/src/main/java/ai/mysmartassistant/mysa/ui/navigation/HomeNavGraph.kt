@@ -1,5 +1,6 @@
 package ai.mysmartassistant.mysa.ui.navigation
 
+import ai.mysmartassistant.mysa.camera.ui.CameraScreen
 import ai.mysmartassistant.mysa.ui.home.ChatScreen
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.navigation.NavController
@@ -18,8 +19,17 @@ fun NavGraphBuilder.homeNavGraph(
 
         composable(route = Route.Chat.route) {
             ChatScreen(
-                windowSizeClass = windowSizeClass
+                windowSizeClass = windowSizeClass,
+                openCamera = {
+                    navController.navigate(
+                        Route.Camera.route
+                    )
+                }
             )
+        }
+
+        composable(route = Route.Camera.route) {
+            CameraScreen()
         }
     }
 }

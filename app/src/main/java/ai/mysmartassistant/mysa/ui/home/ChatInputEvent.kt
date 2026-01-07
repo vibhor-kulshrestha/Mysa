@@ -5,6 +5,7 @@ import androidx.compose.ui.unit.IntOffset
 sealed interface ChatInputEvent {
     data class TextChanged(val value: String) : ChatInputEvent
     data class AttachmentPosition(val value: IntOffset) : ChatInputEvent
+    data object OpenCamera : ChatInputEvent
     data object SendClicked : ChatInputEvent
     data object AttachClicked : ChatInputEvent
     data object EmojiClicked : ChatInputEvent
